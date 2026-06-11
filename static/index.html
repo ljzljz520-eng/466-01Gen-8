@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工业相机标定任务台</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📷 工业相机标定任务台</h1>
+            <p class="subtitle">创建产线、镜头、标定板 → 上传多角度照片 → 计算内参结果</p>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="tasks">标定任务</button>
+            <button class="tab-btn" data-tab="production-lines">产线管理</button>
+            <button class="tab-btn" data-tab="cameras">镜头管理</button>
+            <button class="tab-btn" data-tab="boards">标定板管理</button>
+        </nav>
+
+        <main class="content">
+            <section id="tasks" class="tab-content active">
+                <div class="section-header">
+                    <h2>标定任务列表</h2>
+                    <button class="btn btn-primary" onclick="showCreateTaskModal()">+ 新建标定任务</button>
+                </div>
+                <div id="task-list" class="card-grid"></div>
+            </section>
+
+            <section id="production-lines" class="tab-content">
+                <div class="section-header">
+                    <h2>产线管理</h2>
+                    <button class="btn btn-primary" onclick="showCreateLineModal()">+ 新建产线</button>
+                </div>
+                <div id="line-list" class="card-grid"></div>
+            </section>
+
+            <section id="cameras" class="tab-content">
+                <div class="section-header">
+                    <h2>镜头管理</h2>
+                    <button class="btn btn-primary" onclick="showCreateCameraModal()">+ 新建镜头</button>
+                </div>
+                <div id="camera-list" class="card-grid"></div>
+            </section>
+
+            <section id="boards" class="tab-content">
+                <div class="section-header">
+                    <h2>标定板管理</h2>
+                    <button class="btn btn-primary" onclick="showCreateBoardModal()">+ 新建标定板</button>
+                </div>
+                <div id="board-list" class="card-grid"></div>
+            </section>
+        </main>
+    </div>
+
+    <div id="create-task-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新建标定任务</h3>
+                <button class="close-btn" onclick="closeModal('create-task-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>任务名称 *</label>
+                    <input type="text" id="task-name" placeholder="例如：SMT产线A01相机标定">
+                </div>
+                <div class="form-group">
+                    <label>选择镜头 *</label>
+                    <select id="task-camera-id"></select>
+                </div>
+                <div class="form-group">
+                    <label>选择标定板 *</label>
+                    <select id="task-board-id"></select>
+                </div>
+                <div class="form-group">
+                    <label>拍摄距离 (mm) *</label>
+                    <input type="number" id="task-distance" placeholder="例如：300" step="0.1">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('create-task-modal')">取消</button>
+                <button class="btn btn-primary" onclick="createTask()">创建任务</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="create-line-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新建产线</h3>
+                <button class="close-btn" onclick="closeModal('create-line-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>产线名称 *</label>
+                    <input type="text" id="line-name" placeholder="例如：SMT产线A">
+                </div>
+                <div class="form-group">
+                    <label>描述</label>
+                    <textarea id="line-description" rows="3" placeholder="产线用途说明"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('create-line-modal')">取消</button>
+                <button class="btn btn-primary" onclick="createLine()">创建产线</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="create-camera-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新建镜头</h3>
+                <button class="close-btn" onclick="closeModal('create-camera-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>镜头名称 *</label>
+                    <input type="text" id="camera-name" placeholder="例如：A01工位相机">
+                </div>
+                <div class="form-group">
+                    <label>所属产线 *</label>
+                    <select id="camera-line-id"></select>
+                </div>
+                <div class="form-group">
+                    <label>镜头型号</label>
+                    <input type="text" id="camera-lens-model" placeholder="例如：Computar M1214-MP2">
+                </div>
+                <div class="form-group">
+                    <label>焦距 (mm)</label>
+                    <input type="number" id="camera-focal-length" placeholder="例如：12" step="0.1">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('create-camera-modal')">取消</button>
+                <button class="btn btn-primary" onclick="createCamera()">创建镜头</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="create-board-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新建标定板</h3>
+                <button class="close-btn" onclick="closeModal('create-board-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>标定板名称 *</label>
+                    <input type="text" id="board-name" placeholder="例如：7x9棋盘格25mm">
+                </div>
+                <div class="form-group">
+                    <label>标定板类型</label>
+                    <select id="board-type">
+                        <option value="chessboard">棋盘格</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label>内角点行数 *</label>
+                        <input type="number" id="board-rows" value="6" min="2">
+                    </div>
+                    <div class="form-group">
+                        <label>内角点列数 *</label>
+                        <input type="number" id="board-cols" value="8" min="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>方格尺寸 (mm) *</label>
+                    <input type="number" id="board-square-size" value="25" step="0.1" min="0.1">
+                </div>
+                <div class="info-box">
+                    <p>💡 <strong>提示：</strong>内角点数量 = 行数 × 列数。例如标准棋盘格 8×10 格，内角点为 7×9。</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('create-board-modal')">取消</button>
+                <button class="btn btn-primary" onclick="createBoard()">创建标定板</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="task-detail-modal" class="modal modal-large">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="detail-task-name">标定任务详情</h3>
+                <button class="close-btn" onclick="closeTaskDetail()">&times;</button>
+            </div>
+            <div class="modal-body" id="task-detail-body"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
