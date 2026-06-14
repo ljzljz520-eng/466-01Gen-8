@@ -13,7 +13,8 @@ api_bp = Blueprint('api', __name__)
 
 @main_bp.route('/')
 def index():
-    return send_from_directory('static', 'index.html')
+    static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static')
+    return send_from_directory(static_dir, 'index.html')
 
 
 @api_bp.route('/production-lines', methods=['GET'])
